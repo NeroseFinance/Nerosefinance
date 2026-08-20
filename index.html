@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nerose — Take Control Of Your Money</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1442;
+    --panel:#161d54;
+    --panel-2:#1c2461;
+    --ink:#f3f4fb;
+    --ink-soft:#9aa1cc;
+    --gold:#e8c977;
+    --gold-soft:rgba(232,201,119,0.16);
+    --line:rgba(255,255,255,0.10);
+    --radius-sm:10px;
+    --radius-md:16px;
+    --radius-lg:24px;
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+  }
+
+  body{
+    font-family:'Lora',Georgia,'Times New Roman',serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  h1,h2,h3,h4,h5,
+  .logo,
+  #authOverlay .auth-brand,
+  #authOverlay .card-logo{
+    font-family:'Playfair Display',Georgia,serif;
+  }
+
+  a{color:inherit;text-decoration:none;}
+  ul{list-style:none;}
+  img{max-width:100%;display:block;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+  ::selection{background:var(--gold);color:var(--bg);}
+
+  :focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:3px;
+  }
+
+  .wrap{
+    max-width:1220px;
+    margin:0 auto;
+    padding:0 32px;
+  }
+
+  /* ===================================================================
+     PHASE 1 — MARKETING SITE
+  =================================================================== */
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:13px 24px;
+    border-radius:999px;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    transition:transform .35s var(--ease), background .35s var(--ease), color .35s var(--ease), box-shadow .35s var(--ease);
+    white-space:nowrap;
+  }
+  .btn-primary{
+    background:var(--gold);
+    color:var(--bg);
+  }
+  .btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 24px -8px rgba(0,0,0,0.45);
+  }
+  .btn-ghost{
+    background:transparent;
+    color:var(--ink);
+    border:1px solid var(--line);
+  }
+  .btn-ghost:hover{
+    border-color:var(--gold);
+    transform:translateY(-2px);
+  }
+  .btn-sm{padding:10px 18px;font-size:13px;}
+
+  /* ---------- Navbar ---------- */
+  header{
+    position:fixed;
+    top:0;left:0;right:0;
+    z-index:100;
+    padding:18px 0;
+    transition:background .4s var(--ease), border-color .4s var(--ease), padding .4s var(--ease), backdrop-filter .4s var(--ease);
+    border-bottom:1px solid transparent;
+  }
+  header.scrolled{
+    background:rgba(15,20,66,0.75);
+    backdrop-filter:blur(14px) saturate(140%);
+    -webkit-backdrop-filter:blur(14px) saturate(140%);
+    border-bottom:1px solid var(--line);
+    padding:14px 0;
+  }
+  .nav-inner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .logo{
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:0.01em;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .logo-mark{
+    width:22px;height:22px;
+    border-radius:6px;
+    background:var(--gold);
+    position:relative;
+    flex-shrink:0;
+  }
+  .logo-mark::after{
+    content:'';
+    position:absolute;
+    top:50%;left:50%;
+    width:8px;height:8px;
+    border-radius:2px;
+    background:var(--bg);
+    transform:translate(-50%,-50%) rotate(45deg);
+  }
+  .nav-menu{
+    position:fixed;
+    top:64px;left:16px;right:16px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:0;
+    padding:8px;
+    box-shadow:0 20px 40px -12px rgba(0,0,0,0.4);
+    transform:translateY(-12px);
+    opacity:0;
+    pointer-events:none;
+    transition:all .3s var(--ease);
+    max-width:260px;
+    margin-left:auto;
+  }
+  .nav-menu.open{transform:translateY(0);opacity:1;pointer-events:auto;}
+  .nav-menu a{
+    font-size:14px;
+    font-weight:500;
+    color:var(--ink-soft);
+    position:relative;
+    width:100%;
+    padding:12px 14px;
+    border-radius:8px;
+    transition:color .3s var(--ease), background .25s var(--ease);
+  }
+  .nav-menu a:hover{color:var(--ink);background:rgba(255,255,255,0.04);}
+  .nav-menu .nav-menu-divider{width:100%;height:1px;background:var(--line);margin:6px 0;}
+  .nav-menu .nav-login-item{font-weight:600;color:var(--ink);}
+  .nav-menu .nav-get-started{
+    display:flex;align-items:center;justify-content:center;
+    background:var(--gold);color:var(--bg);font-weight:600;
+    margin-top:4px;
+  }
+  .nav-menu .nav-get-started:hover{background:var(--gold);color:var(--bg);opacity:0.9;}
+  .nav-actions{display:flex;align-items:center;gap:12px;}
+  .nav-toggle{
+    display:flex;flex-direction:column;gap:4px;
+    width:32px;height:32px;align-items:center;justify-content:center;
+  }
+  .nav-toggle span{width:18px;height:1.5px;background:var(--ink);transition:.3s var(--ease);}
+
+  /* ---------- Desktop nav actions (Sign in / Get Started) ---------- */
+  .nav-desktop-actions{display:none;align-items:center;gap:20px;}
+  .nav-desktop-actions .nav-signin{
+    font-size:14px;font-weight:600;color:var(--ink);
+    transition:color .3s var(--ease);
+  }
+  .nav-desktop-actions .nav-signin:hover{color:var(--gold);}
+  @media (min-width:921px){
+    .nav-desktop-actions{display:flex;}
+    .nav-toggle{display:none;}
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:180px 0 120px;
+    position:relative;
+    min-height:820px;
+  }
+  .hero::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:100%;
+    background-image:url('hero-bg.png');
+    background-size:100% 100%;
+    background-position:top center;
+    background-repeat:no-repeat;
+    z-index:-2;
+  }
+  .hero::after{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:100%;
+    background:linear-gradient(to bottom, rgba(15,20,66,0) 0%, rgba(15,20,66,0) 85%, var(--bg) 100%);
+    z-index:-1;
+  }
+  .hero-inner{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    max-width:1180px;
+    margin:0 auto;
+    text-align:left;
+    gap:64px;
+    align-items:center;
+  }
+  .hero-inner .hero-copy{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .hero-inner .hero p.sub{
+    max-width:460px;
+  }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    border:1px solid var(--line);
+    padding:7px 14px;
+    border-radius:999px;
+    margin-bottom:28px;
+  }
+  .eyebrow .dot{
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--gold);
+  }
+  .hero h1{
+    font-size:clamp(40px,5.2vw,68px);
+    font-weight:700;
+    letter-spacing:0;
+    line-height:1.08;
+    margin-bottom:24px;
+  }
+  .hero p.sub{
+    font-size:18px;
+    line-height:1.6;
+    color:var(--ink-soft);
+    max-width:460px;
+    margin-bottom:36px;
+  }
+  .hero-actions{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:48px;
+  }
+  .btn-demo{display:inline-flex;align-items:center;gap:8px;}
+  .play-icon{
+    width:28px;height:28px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .hero-proof{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .avatars{display:flex;}
+  .avatars span{
+    width:28px;height:28px;
+    border-radius:50%;
+    background:var(--gold-soft);
+    border:2px solid var(--bg);
+    margin-left:-8px;
+    background-size:cover;
+    background-position:center;
+    display:block;
+  }
+  .avatars span:first-child{margin-left:0;}
+
+  /* ---------- Dashboard mockup ---------- */
+  .hero-visual{position:relative;}
+  .dash-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.4);
+    padding:28px;
+    position:relative;
+    z-index:2;
+  }
+  .dash-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:22px;
+  }
+  .dash-label{
+    font-size:12px;
+    color:var(--ink-soft);
+    font-weight:500;
+    margin-bottom:8px;
+  }
+  .dash-balance{
+    font-size:34px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+  }
+  .dash-badge{
+    font-size:11px;
+    font-weight:600;
+    background:var(--gold);
+    color:var(--bg);
+    padding:6px 10px;
+    border-radius:999px;
+  }
+  .sparkline{
+    width:100%;height:64px;
+    margin:18px 0 22px;
+  }
+  .dash-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:16px;
+  }
+  .mini-stat{
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:14px 16px;
+  }
+  .mini-stat .k{font-size:11px;color:var(--ink-soft);margin-bottom:6px;}
+  .mini-stat .v{font-size:18px;font-weight:700;letter-spacing:-0.01em;color:var(--gold);}
+  .v.pos::before{content:'↑ ';font-size:13px;}
+  .v.neg::before{content:'↓ ';font-size:13px;}
+
+  .goal-row{
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:16px;
+  }
+  .goal-top{
+    display:flex;justify-content:space-between;
+    font-size:12px;margin-bottom:10px;
+  }
+  .goal-top span:first-child{color:var(--ink-soft);}
+  .goal-top span:last-child{font-weight:700;color:var(--gold);}
+  .goal-bar{
+    height:6px;
+    background:var(--panel-2);
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .goal-fill{
+    height:100%;
+    background:var(--gold);
+    border-radius:999px;
+    width:0%;
+    transition:width 1.4s var(--ease);
+  }
+  .dash-float{
+    position:absolute;
+    background:var(--gold);
+    color:var(--bg);
+    border-radius:var(--radius-md);
+    padding:14px 18px;
+    box-shadow:0 20px 40px -12px rgba(0,0,0,0.5);
+    z-index:3;
+    font-size:13px;
+  }
+  .dash-float.f1{
+    bottom:-24px;left:-36px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .dash-float.f1 .fi{font-weight:700;font-size:15px;}
+  .dash-float.f1 .fl{color:rgba(15,20,66,0.65);font-size:11px;}
+  .float-icon{
+    width:32px;height:32px;
+    background:var(--bg);
+    color:var(--gold);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:14px;
+  }
+  .hero-visual::before{
+    content:'';
+    position:absolute;
+    inset:-40px -40px auto auto;
+    top:-30px;right:-30px;
+    width:260px;height:260px;
+    border:1px solid var(--line);
+    border-radius:50%;
+    z-index:0;
+  }
+
+  /* ---------- Dashboard mockup v2 ---------- */
+  .dash-delta{
+    display:flex;align-items:center;gap:4px;
+    font-size:12.5px;font-weight:600;color:#6fd39a;margin-top:8px;
+  }
+  .dash-menu{
+    color:var(--ink-soft);font-size:18px;line-height:1;padding:4px;
+    transition:color .25s var(--ease);
+  }
+  .dash-menu:hover{color:var(--ink);}
+  .dash-divider{height:1px;background:var(--line);margin:20px 0;}
+  .dash-section-head{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:13px;font-weight:600;color:var(--ink);margin-bottom:18px;
+  }
+  .dash-select{
+    display:flex;align-items:center;gap:5px;
+    font-size:11.5px;font-weight:500;color:var(--ink-soft);
+  }
+  .dash-donut-row{display:flex;align-items:center;gap:22px;}
+  .donut-wrap{
+    position:relative;flex-shrink:0;
+    width:112px;height:112px;border-radius:50%;
+    background:conic-gradient(var(--gold) 0% 45%, #dba955 45% 75%, #3a4173 75% 90%, #262d5e 90% 100%);
+  }
+  .donut-ring{position:absolute;inset:0;border-radius:50%;}
+  .donut-center{
+    position:absolute;inset:16px;border-radius:50%;background:var(--panel);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .donut-amount{font-size:15px;font-weight:700;letter-spacing:-0.01em;}
+  .donut-label{font-size:9.5px;color:var(--ink-soft);margin-top:2px;}
+  .dash-legend{flex:1;display:flex;flex-direction:column;gap:11px;}
+  .dash-legend li{display:flex;align-items:center;font-size:12px;color:var(--ink-soft);}
+  .dash-legend .dot{width:7px;height:7px;border-radius:50%;margin-right:8px;flex-shrink:0;}
+  .dash-legend .d1{background:var(--gold);}
+  .dash-legend .d2{background:#dba955;}
+  .dash-legend .d3{background:#5a6199;}
+  .dash-legend .d4{background:#3a4173;}
+  .dash-legend b{margin-left:6px;font-weight:600;color:var(--ink);}
+  .dash-legend .amt{margin-left:auto;font-size:11.5px;color:var(--ink-soft);}
+  .dash-tx-list{display:flex;flex-direction:column;gap:16px;}
+  .dash-tx{display:flex;align-items:center;justify-content:space-between;}
+  .tx-name{font-size:13.5px;font-weight:600;}
+  .tx-date{font-size:11.5px;color:var(--ink-soft);margin-top:3px;}
+  .tx-amt{font-size:13.5px;font-weight:700;}
+  .tx-amt.neg{color:var(--ink);}
+  .tx-amt.pos{color:#6fd39a;}
+
+  /* ---------- Section shared ---------- */
+  section{position:relative;}
+  .section-pad{padding:120px 0;}
+  .section-head{
+    max-width:640px;
+    margin:0 auto 64px;
+    text-align:center;
+  }
+  .kicker{
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:14px;
+  }
+  .section-head h2{
+    font-size:clamp(30px,3.6vw,44px);
+    font-weight:700;
+    letter-spacing:0;
+    line-height:1.15;
+  }
+  .section-head p{
+    margin-top:16px;
+    font-size:16px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+
+  .reveal{
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity .8s var(--ease), transform .8s var(--ease);
+  }
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  /* ---------- Features ---------- */
+  .features-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+  }
+  .feature-card{
+    background:var(--panel);
+    padding:36px 28px;
+    transition:background .35s var(--ease);
+  }
+  .feature-card:hover{background:var(--panel-2);}
+  .feature-icon{
+    width:42px;height:42px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:var(--gold-soft);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:22px;
+    transition:transform .35s var(--ease), background .35s var(--ease);
+  }
+  .feature-card:hover .feature-icon{
+    background:var(--gold);
+    transform:translateY(-3px);
+  }
+  .feature-card:hover .feature-icon svg{stroke:var(--bg);}
+  .feature-icon svg{width:20px;height:20px;stroke:var(--gold);transition:stroke .35s var(--ease);}
+  .feature-card h3{
+    font-size:19px;
+    font-weight:700;
+    letter-spacing:0;
+    margin-bottom:10px;
+    color:var(--ink);
+  }
+  .feature-card p{
+    font-size:14px;
+    line-height:1.6;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- Dashboard preview ---------- */
+  .preview-section{background:var(--panel);color:var(--ink);}
+  .preview-section .kicker{color:var(--gold);}
+  .preview-section .section-head p{color:var(--ink-soft);}
+  .app-frame{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:8px;
+    box-shadow:0 60px 120px -40px rgba(0,0,0,0.7);
+  }
+  .app-dots{display:flex;gap:6px;padding:12px 14px;}
+  .app-dots span{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.15);}
+  .app-body{
+    background:var(--bg);
+    border-radius:var(--radius-md);
+    padding:32px;
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:24px;
+  }
+  .app-panel{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:24px;
+  }
+  .app-panel h4{font-size:13px;color:var(--ink-soft);font-weight:500;margin-bottom:18px;}
+  .app-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+  .app-stat .k{font-size:11px;color:var(--ink-soft);margin-bottom:8px;}
+  .app-stat .v{font-size:22px;font-weight:700;letter-spacing:-0.02em;color:var(--ink);}
+  .bars{display:flex;align-items:flex-end;gap:6px;height:110px;}
+  .bars .bar{
+    flex:1;
+    background:var(--gold-soft);
+    border-radius:4px 4px 0 0;
+    position:relative;
+    transition:background .3s var(--ease);
+  }
+  .bars .bar.active{background:var(--gold);}
+  .bars .bar:hover{background:var(--gold);}
+  .tx-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    font-size:13px;
+  }
+  .tx-row:last-child{border-bottom:none;}
+  .tx-left{display:flex;align-items:center;gap:12px;}
+  .tx-icon{
+    width:32px;height:32px;border-radius:9px;
+    background:var(--gold-soft);
+    color:var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:600;
+  }
+  .tx-name{font-weight:500;color:var(--ink);}
+  .tx-date{color:var(--ink-soft);font-size:11px;margin-top:2px;}
+  .tx-amt.neg{color:var(--ink);}
+  .tx-amt.pos{color:var(--ink);}
+  .rate-ring{
+    width:120px;height:120px;
+    margin:8px auto 18px;
+    position:relative;
+  }
+  .rate-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+  .rate-center{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    flex-direction:column;
+  }
+  .rate-center .n{font-size:24px;font-weight:700;color:var(--ink);}
+  .rate-center .l{font-size:10px;color:var(--ink-soft);}
+
+  /* ---------- How it works ---------- */
+  .steps{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:0;
+    position:relative;
+  }
+  .step{
+    padding:0 32px;
+    position:relative;
+  }
+  .step:not(:last-child)::after{
+    content:'';
+    position:absolute;
+    top:26px;right:-1px;
+    width:1px;height:calc(100% - 26px);
+    background:var(--line);
+  }
+  .step-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:var(--gold);
+    margin-bottom:20px;
+    display:block;
+  }
+  .step h3{
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:0;
+    margin-bottom:12px;
+    color:var(--ink);
+  }
+  .step p{
+    font-size:15px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+
+  /* ---------- Pricing ---------- */
+  .pricing-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+    max-width:820px;
+    margin:0 auto;
+  }
+  .price-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:40px 36px;
+    background:var(--panel);
+    transition:transform .4s var(--ease), box-shadow .4s var(--ease);
+  }
+  .price-card:hover{transform:translateY(-6px);box-shadow:0 30px 50px -24px rgba(0,0,0,0.4);}
+  .price-card.featured{
+    background:var(--gold);
+    color:var(--bg);
+    border-color:var(--gold);
+  }
+  .price-plan{font-size:15px;font-weight:600;margin-bottom:6px;}
+  .price-desc{font-size:13px;color:var(--ink-soft);margin-bottom:24px;}
+  .price-card.featured .price-desc{color:rgba(15,20,66,0.7);}
+  .price-amt{
+    font-size:44px;font-weight:800;letter-spacing:-0.03em;
+    margin-bottom:4px;
+  }
+  .price-amt span{font-size:15px;font-weight:500;color:var(--ink-soft);}
+  .price-card.featured .price-amt span{color:rgba(15,20,66,0.7);}
+  .price-note{font-size:12px;color:var(--ink-soft);margin-bottom:28px;}
+  .price-list{margin-bottom:32px;}
+  .price-list li{
+    display:flex;align-items:center;gap:10px;
+    font-size:14px;padding:9px 0;
+    border-top:1px solid var(--line);
+  }
+  .price-card.featured .price-list li{border-top:1px solid rgba(15,20,66,0.15);}
+  .price-list li:first-child{border-top:none;}
+  .check{
+    width:16px;height:16px;flex-shrink:0;
+  }
+  .price-card .btn{width:100%;}
+  .price-card:not(.featured) .btn-full{background:var(--gold);color:var(--bg);}
+  .price-card.featured .btn-full{background:var(--bg);color:var(--gold);}
+
+  /* ---------- CTA ---------- */
+  .cta-section{
+    background:var(--bg);
+  }
+  .cta-box{
+    background:var(--panel);
+    color:var(--ink);
+    border-radius:32px;
+    padding:80px 40px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .cta-box h2{
+    font-size:clamp(30px,4vw,48px);
+    font-weight:700;
+    letter-spacing:0;
+    margin-bottom:32px;
+    max-width:600px;
+    margin-left:auto;margin-right:auto;
+  }
+  .cta-box .btn-primary{background:var(--gold);color:var(--bg);}
+  .cta-box .btn-primary:hover{box-shadow:0 12px 30px -8px rgba(232,201,119,0.3);}
+  .cta-ring{
+    position:absolute;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:50%;
+  }
+  .cta-ring.r1{width:520px;height:520px;top:-260px;left:50%;transform:translateX(-50%);}
+  .cta-ring.r2{width:380px;height:380px;bottom:-260px;right:-100px;}
+
+  /* ---------- Footer ---------- */
+  footer{
+    padding:72px 0 32px;
+    border-top:1px solid var(--line);
+  }
+  .footer-top{
+    display:grid;
+    grid-template-columns:1.4fr 1fr 1fr 1fr;
+    gap:40px;
+    margin-bottom:56px;
+  }
+  .footer-brand p{
+    font-size:14px;color:var(--ink-soft);
+    margin-top:14px;max-width:260px;line-height:1.6;
+  }
+  .footer-col h5{
+    font-size:12px;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.06em;
+    color:var(--gold);
+    margin-bottom:18px;
+  }
+  .footer-col a{
+    display:block;
+    font-size:14px;
+    color:var(--ink);
+    padding:7px 0;
+    transition:opacity .3s var(--ease);
+  }
+  .footer-col a:hover{opacity:0.5;}
+  .footer-bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:28px;
+    border-top:1px solid var(--line);
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .footer-socials{display:flex;gap:20px;}
+
+  /* ---------- Responsive (marketing) ---------- */
+  @media (max-width:920px){
+    .hero-inner{grid-template-columns:1fr;}
+    .hero{padding:140px 0 80px;}
+    .hero-visual{margin-top:20px;max-width:420px;}
+    .features-grid{grid-template-columns:repeat(2,1fr);}
+    .app-body{grid-template-columns:1fr;}
+    .steps{grid-template-columns:1fr;gap:40px;}
+    .step:not(:last-child)::after{display:none;}
+    .pricing-grid{grid-template-columns:1fr;}
+    .footer-top{grid-template-columns:repeat(2,1fr);}
+    .cta-box{padding:56px 24px;}
+  }
+  @media (max-width:560px){
+    .wrap{padding:0 20px;}
+    .features-grid{grid-template-columns:1fr;}
+    .footer-top{grid-template-columns:1fr;gap:32px;}
+    .footer-bottom{flex-direction:column;gap:16px;text-align:center;}
+  }
+  @media (max-width:480px){
+    .dash-card{padding:22px;}
+    .dash-donut-row{flex-direction:column;align-items:flex-start;gap:18px;}
+    .donut-wrap{margin:0 auto;}
+    .dash-legend{width:100%;}
+    .dash-balance{font-size:28px;}
+  }
+  @media (min-width:921px) and (max-width:1180px){
+    .wrap{padding:0 24px;}
+    .hero-inner{max-width:1000px;gap:44px;}
+    .features-grid{grid-template-columns:repeat(2,1fr);}
+  }
+
+  /* ===================================================================
+     PHASE 2 — AUTHENTICATION OVERLAY
+     Everything below is scoped under #authOverlay so it never touches
+     the marketing site's styles above, even where class names repeat
+     (.btn, .card, .logo-mark, .bar, .sub, .active …).
+  =================================================================== */
+
+  #authOverlay{
+    position:fixed;
+    inset:0;
+    z-index:500;
+    background:var(--bg);
+    color:var(--ink);
+    display:none;
+    overflow-y:auto;
+    -webkit-font-smoothing:antialiased;
+    /* dark-context tokens, scoped — override the light tokens above
+       for every descendant of this element only */
+    --panel:#141a4d;
+    --panel-2:#1a2158;
+    --gray-300:rgba(255,255,255,0.55);
+    --gray-500:rgba(255,255,255,0.38);
+    --line:rgba(255,255,255,0.12);
+    --line-soft:rgba(255,255,255,0.07);
+    --radius-lg:26px;
+  }
+  #authOverlay.open{display:block;animation:authFadeIn .35s var(--ease);}
+  @keyframes authFadeIn{from{opacity:0;}to{opacity:1;}}
+
+  #authOverlay ::selection{background:var(--gold);color:var(--bg);}
+
+  /* ambient backdrop */
+  #authOverlay .backdrop{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  #authOverlay .ring{position:absolute;border:1px solid rgba(255,255,255,0.06);border-radius:50%;}
+  #authOverlay .ring.r1{width:900px;height:900px;top:-420px;left:50%;transform:translateX(-50%);}
+  #authOverlay .ring.r2{width:620px;height:620px;bottom:-360px;right:-160px;}
+  #authOverlay .ring.r3{width:340px;height:340px;bottom:8%;left:-120px;}
+  #authOverlay .grain-line{position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent);}
+
+  /* top bar */
+  #authOverlay .auth-topbar{
+    position:absolute;
+    top:0;left:0;right:0;
+    z-index:10;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:28px 32px;
+  }
+  #authOverlay .auth-brand{
+    display:flex;align-items:center;gap:8px;
+    font-size:18px;font-weight:700;letter-spacing:0.01em;
+  }
+  #authOverlay .logo-mark.logo-invert{background:var(--gold);}
+  #authOverlay .logo-mark.logo-invert::after{background:var(--bg);}
+  #authOverlay .auth-close{
+    width:38px;height:38px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--gray-300);
+    font-size:15px;
+    transition:border-color .25s var(--ease), color .25s var(--ease), transform .25s var(--ease);
+  }
+  #authOverlay .auth-close:hover{border-color:rgba(255,255,255,0.5);color:var(--ink);transform:rotate(90deg);}
+
+  /* stage */
+  #authOverlay .stage{
+    position:relative;
+    z-index:1;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:104px 24px 48px;
+  }
+
+  /* card */
+  #authOverlay .card-wrap{width:100%;max-width:408px;position:relative;}
+  #authOverlay .card-wrap::before{
+    content:'';
+    position:absolute;
+    inset:-1px;
+    border-radius:var(--radius-lg);
+    padding:1px;
+    background:linear-gradient(160deg, rgba(232,201,119,0.55), rgba(232,201,119,0) 30%, rgba(232,201,119,0) 70%, rgba(232,201,119,0.25));
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    pointer-events:none;
+  }
+  #authOverlay .card{
+    background:linear-gradient(180deg, rgba(232,201,119,0.05), rgba(255,255,255,0.03) 40%);
+    backdrop-filter:blur(24px) saturate(140%);
+    -webkit-backdrop-filter:blur(24px) saturate(140%);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:44px 38px;
+    box-shadow:0 50px 100px -30px rgba(0,0,0,0.85), 0 0 0 1px rgba(232,201,119,0.04), inset 0 1px 0 rgba(255,255,255,0.08);
+    position:relative;
+  }
+  #authOverlay .card-head{margin-bottom:32px;}
+  #authOverlay .card-logo{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:17px;font-weight:700;letter-spacing:0.01em;
+    color:var(--gold);
+    margin-bottom:28px;
+  }
+  #authOverlay .card-logo .logo-mark{width:18px;height:18px;box-shadow:0 0 16px rgba(232,201,119,0.5);}
+  #authOverlay .card h1{font-size:29px;font-weight:700;letter-spacing:0;margin-bottom:10px;background:linear-gradient(180deg,#fff,rgba(255,255,255,0.75));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  #authOverlay .card .sub{font-size:14.5px;line-height:1.55;color:var(--gray-300);}
+
+  /* form */
+  #authOverlay form{display:flex;flex-direction:column;gap:16px;}
+  #authOverlay .field{display:flex;flex-direction:column;gap:8px;}
+  #authOverlay .field label{font-size:12.5px;font-weight:600;color:var(--gray-300);letter-spacing:0.01em;}
+  #authOverlay .input-shell{position:relative;display:flex;align-items:center;}
+  #authOverlay .input-shell input{
+    width:100%;
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:13px 16px;
+    font-size:14.5px;
+    color:var(--ink);
+    font-family:inherit;
+    transition:border-color .3s var(--ease), background .3s var(--ease), box-shadow .3s var(--ease);
+  }
+  #authOverlay .input-shell input::placeholder{color:var(--gray-500);}
+  #authOverlay .input-shell input:hover{border-color:rgba(255,255,255,0.22);}
+  #authOverlay .input-shell input:focus{
+    outline:none;
+    border-color:var(--gold);
+    background:rgba(232,201,119,0.05);
+    box-shadow:0 0 0 4px rgba(232,201,119,0.12);
+  }
+  #authOverlay .input-shell.has-toggle input{padding-right:44px;}
+  #authOverlay .eye-btn{
+    position:absolute;right:6px;width:32px;height:32px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--gray-500);background:transparent;
+    transition:color .25s var(--ease), background .25s var(--ease);
+  }
+  #authOverlay .eye-btn:hover{color:var(--ink);background:rgba(255,255,255,0.06);}
+  #authOverlay .eye-btn svg{width:17px;height:17px;}
+
+  #authOverlay .field.error .input-shell input{
+    border-color:rgba(255,255,255,0.7);
+    background:rgba(255,255,255,0.06);
+    animation:authShake .4s var(--ease);
+  }
+  #authOverlay .field-msg{font-size:12px;color:var(--gray-500);display:none;align-items:center;gap:6px;}
+  #authOverlay .field.error .field-msg{display:flex;color:var(--gray-300);}
+  #authOverlay .field-msg svg{width:13px;height:13px;flex-shrink:0;}
+  @keyframes authShake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-6px);}
+    40%{transform:translateX(5px);}
+    60%{transform:translateX(-3px);}
+    80%{transform:translateX(2px);}
+  }
+
+  #authOverlay .form-row{display:flex;align-items:center;justify-content:space-between;margin-top:2px;}
+  #authOverlay .check-wrap{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--gray-300);cursor:pointer;user-select:none;}
+  #authOverlay .check-box{
+    width:17px;height:17px;border:1px solid var(--line);border-radius:5px;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .25s var(--ease), border-color .25s var(--ease);
+    flex-shrink:0;
+  }
+  #authOverlay .check-box svg{width:11px;height:11px;opacity:0;transform:scale(0.6);transition:opacity .2s var(--ease), transform .2s var(--ease);}
+  #authOverlay .check-wrap input{display:none;}
+  #authOverlay .check-wrap input:checked + .check-box{background:var(--gold);border-color:var(--gold);}
+  #authOverlay .check-wrap input:checked + .check-box svg{opacity:1;transform:scale(1);stroke:var(--bg);}
+  #authOverlay .link-muted{font-size:13px;color:var(--gray-300);transition:color .25s var(--ease);position:relative;}
+  #authOverlay .link-muted:hover{color:var(--gold);}
+
+  /* buttons (scoped so they never collide with the marketing .btn) */
+  #authOverlay .btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;padding:13.5px 20px;border-radius:999px;
+    font-size:14.5px;font-weight:600;letter-spacing:-0.01em;
+    transition:transform .3s var(--ease), box-shadow .3s var(--ease), background .3s var(--ease), opacity .3s var(--ease);
+    position:relative;overflow:hidden;
+  }
+  #authOverlay .btn-white{background:linear-gradient(180deg,#f2dd9c,var(--gold));color:var(--bg);border:1px solid var(--gold);}
+  #authOverlay .btn-white:hover{transform:translateY(-2px);box-shadow:0 16px 34px -10px rgba(232,201,119,0.5);}
+  #authOverlay .btn-outline{background:rgba(255,255,255,0.02);color:var(--ink);border:1px solid var(--line);}
+  #authOverlay .btn-outline:hover{border-color:rgba(232,201,119,0.5);background:rgba(232,201,119,0.04);transform:translateY(-2px);}
+  #authOverlay .btn:active{transform:translateY(0);}
+  #authOverlay .btn[disabled]{opacity:0.6;pointer-events:none;}
+
+  #authOverlay .btn-spinner{
+    width:16px;height:16px;border-radius:50%;
+    border:2px solid rgba(0,0,0,0.2);border-top-color:var(--bg);
+    animation:authSpin .7s linear infinite;display:none;
+  }
+  #authOverlay .btn-outline .btn-spinner{border:2px solid rgba(255,255,255,0.25);border-top-color:var(--ink);}
+  #authOverlay .btn.loading .btn-spinner{display:inline-block;}
+  #authOverlay .btn.loading .btn-label{opacity:0.7;}
+  @keyframes authSpin{to{transform:rotate(360deg);}}
+
+  #authOverlay .divider{display:flex;align-items:center;gap:14px;margin:22px 0 18px;color:var(--gray-500);font-size:12px;}
+  #authOverlay .divider::before,#authOverlay .divider::after{content:'';flex:1;height:1px;background:var(--line-soft);}
+
+  #authOverlay .card-footer{margin-top:26px;text-align:center;font-size:13.5px;color:var(--gray-300);}
+  #authOverlay .card-footer button{
+    color:var(--gold);font-weight:600;background:none;border:none;padding:0;margin-left:2px;
+    text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,0.3);
+    transition:text-decoration-color .25s var(--ease);
+  }
+  #authOverlay .card-footer button:hover{text-decoration-color:rgba(255,255,255,0.9);}
+
+  #authOverlay .success-flash{
+    position:absolute;inset:0;background:var(--bg);border-radius:var(--radius-lg);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+    opacity:0;pointer-events:none;transition:opacity .4s var(--ease);z-index:5;
+  }
+  #authOverlay .success-flash.show{opacity:1;pointer-events:auto;}
+  #authOverlay .success-ring{width:64px;height:64px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;}
+  #authOverlay .success-ring svg{width:26px;height:26px;stroke:var(--gold);stroke-width:2.4;fill:none;}
+  #authOverlay .success-ring .tick{stroke-dasharray:24;stroke-dashoffset:24;animation:authDraw .5s var(--ease) .15s forwards;}
+  @keyframes authDraw{to{stroke-dashoffset:0;}}
+  #authOverlay .success-flash p{font-size:14px;color:var(--gray-300);}
+  #authOverlay .success-flash .name{font-weight:700;color:var(--ink);}
+
+  /* screens */
+  #authOverlay .screen{display:none;}
+  #authOverlay .screen.active{display:block;}
+  #authOverlay .fade-slide-enter{animation:authFadeSlideIn .55s var(--ease);}
+  @keyframes authFadeSlideIn{
+    from{opacity:0;transform:translateY(14px) scale(0.985);}
+    to{opacity:1;transform:translateY(0) scale(1);}
+  }
+
+  /* demo dashboard */
+  #authOverlay .dash-stage{max-width:920px;width:100%;}
+  #authOverlay .dash-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+  #authOverlay .who{display:flex;align-items:center;gap:12px;}
+  #authOverlay .who-avatar{
+    width:40px;height:40px;border-radius:50%;background:var(--gold);color:var(--bg);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;
+  }
+  #authOverlay .who-name{font-size:14.5px;font-weight:600;}
+  #authOverlay .who-tag{font-size:12px;color:var(--gray-500);}
+  #authOverlay .exit-btn{
+    font-size:13px;color:var(--gray-300);border:1px solid var(--line);
+    padding:9px 16px;border-radius:999px;
+    transition:border-color .25s var(--ease), color .25s var(--ease);
+  }
+  #authOverlay .exit-btn:hover{border-color:rgba(255,255,255,0.4);color:var(--ink);}
+
+  #authOverlay .dash-grid-wrap{display:grid;grid-template-columns:1.35fr 1fr;gap:20px;}
+  #authOverlay .panel{
+    background:rgba(255,255,255,0.035);border:1px solid var(--line);
+    border-radius:var(--radius-lg);padding:28px;backdrop-filter:blur(20px);
+  }
+  #authOverlay .panel h4{font-size:12.5px;color:var(--gray-300);font-weight:600;margin-bottom:20px;text-transform:uppercase;letter-spacing:0.06em;}
+  #authOverlay .balance-big{font-size:40px;font-weight:800;letter-spacing:-0.03em;margin-bottom:22px;}
+  #authOverlay .stat-strip{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+  #authOverlay .stat-box{border:1px solid var(--line-soft);border-radius:var(--radius-sm);padding:16px;}
+  #authOverlay .stat-box .k{font-size:11.5px;color:var(--gray-500);margin-bottom:8px;}
+  #authOverlay .stat-box .v{font-size:19px;font-weight:700;letter-spacing:-0.01em;}
+  #authOverlay .v.pos::before{content:'↑ ';}
+  #authOverlay .v.neg::before{content:'↓ ';}
+
+  #authOverlay .bars2{display:flex;align-items:flex-end;gap:7px;height:96px;}
+  #authOverlay .bars2 .bar{
+    flex:1;background:rgba(255,255,255,0.12);border-radius:4px 4px 0 0;
+    transition:background .3s var(--ease), height 1s var(--ease);height:0;
+  }
+  #authOverlay .bars2 .bar.active{background:var(--gold);}
+
+  #authOverlay .rate-ring2{width:128px;height:128px;margin:6px auto 16px;position:relative;}
+  #authOverlay .rate-ring2 svg{width:100%;height:100%;transform:rotate(-90deg);}
+  #authOverlay .ring-progress{stroke-dasharray:339.3;stroke-dashoffset:339.3;transition:stroke-dashoffset 1.3s var(--ease);}
+  #authOverlay .rate-center2{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  #authOverlay .rate-center2 .n{font-size:26px;font-weight:800;}
+  #authOverlay .rate-center2 .l{font-size:10.5px;color:var(--gray-500);margin-top:2px;}
+
+  #authOverlay .goal-list{display:flex;flex-direction:column;gap:14px;}
+  #authOverlay .goal-item .top{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px;}
+  #authOverlay .goal-item .top span:first-child{color:var(--gray-300);}
+  #authOverlay .goal-item .top span:last-child{font-weight:700;}
+  #authOverlay .goal-bar2{height:6px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;}
+  #authOverlay .goal-fill2{height:100%;background:var(--gold);border-radius:999px;width:0;transition:width 1.1s var(--ease);}
+
+  @media (max-width:760px){
+    #authOverlay .dash-grid-wrap{grid-template-columns:1fr;}
+    #authOverlay .auth-topbar{padding:20px;}
+    #authOverlay .card{padding:32px 22px;}
+    #authOverlay .stage{padding:88px 18px 40px;}
+  }
+
+  /* ---------- Split login / register layout ---------- */
+  #authOverlay .auth-close{
+    position:fixed;top:24px;right:28px;z-index:50;
+    width:38px;height:38px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(15,20,66,0.55);border:1px solid rgba(255,255,255,0.18);
+    color:#fff;font-size:15px;backdrop-filter:blur(10px);
+    transition:border-color .25s var(--ease), transform .25s var(--ease);
+  }
+  #authOverlay .auth-close:hover{border-color:rgba(255,255,255,0.5);transform:rotate(90deg);}
+
+  #authOverlay .auth-split{position:fixed;inset:0;display:flex;z-index:5;}
+
+  #authOverlay .auth-side{
+    width:380px;flex-shrink:0;position:relative;overflow:hidden;
+    display:flex;flex-direction:column;
+    padding:40px 42px;
+    background:linear-gradient(165deg,#141a4d,var(--bg) 65%);
+    border-right:1px solid var(--line);
+  }
+  #authOverlay .auth-side::before{
+    content:'';position:absolute;width:440px;height:440px;
+    border:1px solid rgba(255,255,255,0.05);border-radius:50%;
+    right:-230px;bottom:-200px;pointer-events:none;
+  }
+  #authOverlay .auth-side .auth-brand{position:relative;z-index:1;font-size:18px;}
+  #authOverlay .auth-back{
+    position:relative;z-index:1;
+    display:inline-flex;align-items:center;gap:6px;margin-top:8px;
+    font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  #authOverlay .auth-steps{position:relative;z-index:1;margin-top:auto;padding-top:60px;}
+  #authOverlay .auth-step{position:relative;padding:0 0 44px 28px;}
+  #authOverlay .auth-step:last-child{padding-bottom:0;}
+  #authOverlay .auth-step::before{
+    content:'';position:absolute;left:0;top:5px;width:9px;height:9px;border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.3);background:var(--bg);z-index:2;
+  }
+  #authOverlay .auth-step::after{
+    content:'';position:absolute;left:3.5px;top:16px;bottom:-32px;width:1px;
+    background:rgba(255,255,255,0.14);
+  }
+  #authOverlay .auth-step:last-child::after{display:none;}
+  #authOverlay .auth-step.is-done::before{background:var(--gold);border-color:var(--gold);}
+  #authOverlay .auth-step .step-num{
+    display:block;font-family:'JetBrains Mono',monospace;font-size:11px;
+    letter-spacing:0.08em;color:var(--ink-soft);margin-bottom:6px;
+  }
+  #authOverlay .auth-step .step-label{
+    font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:rgba(255,255,255,0.5);
+  }
+  #authOverlay .auth-step.is-done .step-label{color:var(--ink);}
+
+  #authOverlay .auth-main{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    background:#eef0fa;padding:60px 32px;overflow-y:auto;
+  }
+  #authOverlay .auth-main .card-wrap{max-width:380px;}
+  #authOverlay .auth-main .card-wrap::before{display:none;}
+  #authOverlay .auth-main .card{
+    background:none;border:none;box-shadow:none;padding:0;
+    backdrop-filter:none;-webkit-backdrop-filter:none;
+    --ink:#161b45;
+    --gray-300:#5c6191;
+    --gray-500:#9599c0;
+    --line:rgba(22,27,69,0.14);
+    --line-soft:rgba(22,27,69,0.09);
+    color:var(--ink);
+  }
+  #authOverlay .auth-main .card-logo{display:none;}
+  #authOverlay .auth-eyebrow{
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;
+    text-transform:uppercase;color:#a3814f;
+  }
+  #authOverlay .auth-eyebrow::before{content:'';width:16px;height:1px;background:#a3814f;}
+  #authOverlay .auth-main .card h1{
+    background:none;-webkit-text-fill-color:currentColor;color:var(--ink);
+    -webkit-background-clip:initial;background-clip:initial;
+  }
+  #authOverlay .auth-main .input-shell input{
+    background:rgba(22,27,69,0.04);border-color:rgba(22,27,69,0.15);
+  }
+  #authOverlay .auth-main .input-shell input:focus{
+    border-color:var(--gold);background:rgba(232,201,119,0.1);
+    box-shadow:0 0 0 4px rgba(232,201,119,0.16);
+  }
+  #authOverlay .auth-main .input-shell input::placeholder{color:#a2a6c8;}
+  #authOverlay .auth-main .btn-white{
+    background:linear-gradient(180deg,#f2dd9c,var(--gold));border-color:var(--gold);color:#161b45;
+  }
+  #authOverlay .auth-main .btn-white:hover{box-shadow:0 16px 34px -10px rgba(232,201,119,0.5);}
+  #authOverlay .auth-main .btn-outline{background:#fff;border-color:rgba(22,27,69,0.15);color:var(--ink);}
+  #authOverlay .auth-main .btn-outline:hover{border-color:rgba(22,27,69,0.32);background:#f7f8fd;}
+  #authOverlay .auth-main .check-box{border-color:rgba(22,27,69,0.28);}
+  #authOverlay .auth-main .link-muted{color:#5c6191;text-decoration:underline;text-underline-offset:3px;}
+  #authOverlay .auth-main .link-muted:hover{color:#a3814f;}
+  #authOverlay .auth-main .card-footer button{color:#a3814f;text-decoration-color:rgba(163,129,79,0.4);}
+  #authOverlay .auth-main .card-footer button:hover{text-decoration-color:#a3814f;}
+  #authOverlay .auth-main .success-flash{background:#eef0fa;}
+  #authOverlay .auth-main .success-flash p{color:var(--gray-300);}
+  #authOverlay .auth-main .success-flash .name{color:var(--ink);}
+  #authOverlay .auth-main .success-ring{border-color:rgba(22,27,69,0.15);}
+
+  @media (max-width:820px){
+    #authOverlay .auth-side{width:260px;padding:32px 26px;}
+    #authOverlay .auth-step .step-label{font-size:18px;}
+  }
+  @media (max-width:640px){
+    #authOverlay .auth-split{flex-direction:column;position:fixed;overflow-y:auto;}
+    #authOverlay .auth-side{
+      width:100%;flex-direction:row;align-items:center;justify-content:space-between;
+      padding:20px 24px;border-right:none;border-bottom:1px solid var(--line);flex-shrink:0;
+    }
+    #authOverlay .auth-side::before{display:none;}
+    #authOverlay .auth-back{display:none;}
+    #authOverlay .auth-steps{display:none;}
+    #authOverlay .auth-main{padding:40px 24px 60px;}
+  }
+</style>
+</head>
+<body>
+
+
+<!-- =====================================================
+     PHASE 1 — MARKETING SITE
+===================================================== -->
+<header id="siteHeader">
+  <div class="wrap nav-inner">
+    <a href="#" class="logo"><span class="logo-mark"></span>Nerose</a>
+    <nav class="nav-menu" id="navMenu">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#about">About</a>
+      <div class="nav-menu-divider"></div>
+      <a href="#" class="nav-login-item" data-auth="login">Sign in</a>
+      <a href="#" class="nav-get-started btn btn-primary btn-sm" data-auth="register">Get Started</a>
+    </nav>
+    <div class="nav-actions">
+      <div class="nav-desktop-actions">
+        <a href="#" class="nav-signin" data-auth="login">Sign in</a>
+        <a href="#" class="btn btn-primary btn-sm" data-auth="register">Get Started</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="dot"></span>Personal finance, refined</span>
+        <h1>Take Control<br>Of Your Money</h1>
+        <p class="sub">Track expenses, manage budgets, and build better financial habits — all in one clear view.</p>
+        <div class="hero-actions">
+          <a href="#" class="btn btn-primary" data-auth="register">Get Started</a>
+          <a href="#" class="btn btn-ghost btn-demo" data-auth="demo"><span class="play-icon">▶</span>View Demo</a>
+        </div>
+        <div class="hero-proof">
+          <div class="avatars">
+            <span style="background-image:url('https://randomuser.me/api/portraits/women/44.jpg')"></span>
+            <span style="background-image:url('https://randomuser.me/api/portraits/men/32.jpg')"></span>
+            <span style="background-image:url('https://randomuser.me/api/portraits/women/68.jpg')"></span>
+            <span style="background-image:url('https://randomuser.me/api/portraits/men/75.jpg')"></span>
+          </div>
+          Used by 1,884 people managing their money better
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="dash-card">
+          <div class="dash-top">
+            <div>
+              <div class="dash-label">Total Balance</div>
+              <div class="dash-balance mono" id="balanceNum">$0.00</div>
+              <div class="dash-delta">+ $2,430.00 (9.71%) this month <span>↗</span></div>
+            </div>
+            <button class="dash-menu">⋯</button>
+          </div>
+
+          <div class="dash-divider"></div>
+
+          <div class="dash-section-head">
+            <span>Spending Overview</span>
+            <span class="dash-select">This Month <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+          </div>
+
+          <div class="dash-donut-row">
+            <div class="donut-wrap">
+              <div class="donut-ring"></div>
+              <div class="donut-center">
+                <div class="donut-amount mono">$4,523</div>
+                <div class="donut-label">Total Spent</div>
+              </div>
+            </div>
+            <ul class="dash-legend">
+              <li><span class="dot d1"></span>Needs<b>45%</b><span class="amt">$2,005</span></li>
+              <li><span class="dot d2"></span>Wants<b>30%</b><span class="amt">$1,557</span></li>
+              <li><span class="dot d3"></span>Savings<b>15%</b><span class="amt">$678</span></li>
+              <li><span class="dot d4"></span>Investments<b>10%</b><span class="amt">$653</span></li>
+            </ul>
+          </div>
+
+          <div class="dash-divider"></div>
+
+          <div class="dash-section-head"><span>Recent Transaction</span></div>
+          <div class="dash-tx-list">
+            <div class="dash-tx">
+              <div>
+                <div class="tx-name">Amazon Shopping</div>
+                <div class="tx-date">Today, 10:30 AM</div>
+              </div>
+              <div class="tx-amt neg mono">-$89.90</div>
+            </div>
+            <div class="dash-tx">
+              <div>
+                <div class="tx-name">Salary</div>
+                <div class="tx-date">May 20, 2024</div>
+              </div>
+              <div class="tx-amt pos mono">+$2,500.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="section-pad">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="kicker">Features</div>
+        <h2>Everything You Need To Manage Your Money</h2>
+      </div>
+
+      <div class="features-grid reveal">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+          </div>
+          <h3>Expense Tracking</h3>
+          <p>Every transaction sorted and categorized automatically — no manual entry needed.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>
+          </div>
+          <h3>Smart Budgeting</h3>
+          <p>Limits that adjust to your habits, with a gentle nudge before you go over.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </div>
+          <h3>Financial Goals</h3>
+          <p>Set a target, track progress in real time, and watch your plan become a habit.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M12 20V4"/><path d="M20 20v-7"/></svg>
+          </div>
+          <h3>Analytics Dashboard</h3>
+          <p>Clear, visual reports that turn raw numbers into decisions you can act on.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD PREVIEW -->
+  <section class="preview-section section-pad">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="kicker">Product</div>
+        <h2>Your Whole Financial Picture, One View</h2>
+        <p>A single dashboard for balances, spending, and progress — built for daily use.</p>
+      </div>
+
+      <div class="app-frame reveal">
+        <div class="app-dots"><span></span><span></span><span></span></div>
+        <div class="app-body">
+          <div class="app-panel">
+            <h4>Overview</h4>
+            <div class="app-stats-row">
+              <div class="app-stat"><div class="k">Balance</div><div class="v mono">$24,850</div></div>
+              <div class="app-stat"><div class="k">Income</div><div class="v mono">$8,500</div></div>
+              <div class="app-stat"><div class="k">Expenses</div><div class="v mono">$2,300</div></div>
+            </div>
+            <div class="bars" id="bars">
+              <div class="bar" style="height:38%"></div>
+              <div class="bar" style="height:52%"></div>
+              <div class="bar" style="height:44%"></div>
+              <div class="bar" style="height:68%"></div>
+              <div class="bar" style="height:58%"></div>
+              <div class="bar" style="height:80%"></div>
+              <div class="bar active" style="height:96%"></div>
+            </div>
+          </div>
+
+          <div class="app-panel">
+            <h4>Savings Rate</h4>
+            <div class="rate-ring">
+              <svg viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="10"/>
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#e8c977" stroke-width="10"
+                  stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="65.3"/>
+              </svg>
+              <div class="rate-center"><span class="n mono">80%</span><span class="l">of goal</span></div>
+            </div>
+
+            <h4 style="margin-top:8px;">Recent Transactions</h4>
+            <div class="tx-row">
+              <div class="tx-left"><span class="tx-icon">A</span><div><div class="tx-name">Apple Store</div><div class="tx-date">Today</div></div></div>
+              <span class="tx-amt neg mono">-$129.00</span>
+            </div>
+            <div class="tx-row">
+              <div class="tx-left"><span class="tx-icon">P</span><div><div class="tx-name">Payroll Deposit</div><div class="tx-date">Yesterday</div></div></div>
+              <span class="tx-amt pos mono">+$4,200.00</span>
+            </div>
+            <div class="tx-row">
+              <div class="tx-left"><span class="tx-icon">W</span><div><div class="tx-name">Whole Foods</div><div class="tx-date">Aug 19</div></div></div>
+              <span class="tx-amt neg mono">-$64.20</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works" class="section-pad">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="kicker">Process</div>
+        <h2>How It Works</h2>
+      </div>
+
+      <div class="steps reveal">
+        <div class="step">
+          <span class="step-num">01</span>
+          <h3>Connect</h3>
+          <p>Securely connect your bank, credit cards, and investments in a few minutes.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <h3>Track</h3>
+          <p>Monitor your spending as it happens, with clear categories and trends.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <h3>Grow</h3>
+          <p>Reach your financial goals with a plan that adapts as your life changes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section section-pad" id="about">
+    <div class="wrap">
+      <div class="cta-box reveal">
+        <div class="cta-ring r1"></div>
+        <div class="cta-ring r2"></div>
+        <h2>Start Building Better Financial Habits</h2>
+        <a href="#" class="btn btn-primary" data-auth="register">Get Started</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="logo"><span class="logo-mark"></span>Nerose</a>
+        <p>A minimal, modern way to track expenses, manage budgets, and reach your goals.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="#about">About</a>
+        <a href="#">Careers</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Nerose Finance. All rights reserved.</span>
+      <div class="footer-socials">
+        <a href="#">Twitter</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- =====================================================
+     PHASE 2 — AUTHENTICATION OVERLAY
+===================================================== -->
+<div id="authOverlay">
+  <div class="backdrop">
+    <div class="ring r1"></div>
+    <div class="ring r2"></div>
+    <div class="ring r3"></div>
+    <div class="grain-line"></div>
+  </div>
+
+  <button class="auth-close" id="authClose" aria-label="Close">✕</button>
+
+  <div class="stage">
+
+    <!-- LOGIN -->
+    <div class="screen active" id="screen-login">
+      <div class="auth-split">
+        <aside class="auth-side">
+          <a href="#" class="auth-brand"><span class="logo-mark logo-invert"></span>Nerose</a>
+          <a href="index.html" class="auth-back">‹ Back to Nerose</a>
+          <div class="auth-steps">
+            <div class="auth-step is-done">
+              <span class="step-num">01</span>
+              <span class="step-label">Track</span>
+            </div>
+            <div class="auth-step is-done">
+              <span class="step-num">02</span>
+              <span class="step-label">Budget</span>
+            </div>
+            <div class="auth-step is-done">
+              <span class="step-num">03</span>
+              <span class="step-label">Grow</span>
+            </div>
+          </div>
+        </aside>
+
+        <div class="auth-main">
+      <div class="card-wrap fade-slide-enter">
+        <div class="card">
+          <div class="card-head">
+            <div class="auth-eyebrow">Sign in</div>
+            <h1>Welcome back.</h1>
+            <p class="sub">Continue your journey toward a clearer, more organized financial life.</p>
+          </div>
+
+          <form id="loginForm" novalidate>
+            <div class="field" id="loginEmailField">
+              <label for="loginEmail">Email</label>
+              <div class="input-shell">
+                <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+              </div>
+              <div class="field-msg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                Enter a valid email address
+              </div>
+            </div>
+
+            <div class="field" id="loginPasswordField">
+              <label for="loginPassword">Password</label>
+              <div class="input-shell has-toggle">
+                <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+                <button type="button" class="eye-btn" data-target="loginPassword" aria-label="Show password">
+                  <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <div class="field-msg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                Incorrect password. Try again.
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label class="check-wrap">
+                <input type="checkbox" id="rememberMe">
+                <span class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>
+                Remember me
+              </label>
+              <a href="#" class="link-muted">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-white" id="loginSubmitBtn">
+              <span class="btn-spinner"></span>
+              <span class="btn-label">Sign In</span>
+            </button>
+          </form>
+
+          <div class="divider">or</div>
+
+          <button type="button" class="btn btn-outline" id="demoBtn">
+            <span class="btn-spinner"></span>
+            <span class="btn-label">Continue with Demo Account</span>
+          </button>
+
+          <div class="card-footer">
+            Don't have an account?
+            <button type="button" id="goRegister">Create account</button>
+          </div>
+
+          <div class="success-flash" id="loginSuccess">
+            <div class="success-ring">
+              <svg viewBox="0 0 24 24"><path class="tick" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <p>Welcome back — signing you in…</p>
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="screen" id="screen-register">
+      <div class="auth-split">
+        <aside class="auth-side">
+          <a href="#" class="auth-brand"><span class="logo-mark logo-invert"></span>Nerose</a>
+          <a href="index.html" class="auth-back">‹ Back to Nerose</a>
+          <div class="auth-steps">
+            <div class="auth-step is-done">
+              <span class="step-num">01</span>
+              <span class="step-label">Track</span>
+            </div>
+            <div class="auth-step is-done">
+              <span class="step-num">02</span>
+              <span class="step-label">Budget</span>
+            </div>
+            <div class="auth-step is-done">
+              <span class="step-num">03</span>
+              <span class="step-label">Grow</span>
+            </div>
+          </div>
+        </aside>
+
+        <div class="auth-main">
+      <div class="card-wrap fade-slide-enter">
+        <div class="card">
+          <div class="card-head">
+            <div class="auth-eyebrow">Create account</div>
+            <h1>Welcome back.</h1>
+            <p class="sub">Create your account in under a minute and get a clear, organized view of your money.</p>
+          </div>
+
+          <form id="registerForm" novalidate>
+            <div class="field" id="regNameField">
+              <label for="regName">Full name</label>
+              <div class="input-shell">
+                <input type="text" id="regName" placeholder="Alex Morgan" autocomplete="name">
+              </div>
+              <div class="field-msg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                Enter your full name
+              </div>
+            </div>
+
+            <div class="field" id="regEmailField">
+              <label for="regEmail">Email</label>
+              <div class="input-shell">
+                <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email">
+              </div>
+              <div class="field-msg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                Enter a valid email address
+              </div>
+            </div>
+
+            <div class="field" id="regPasswordField">
+              <label for="regPassword">Password</label>
+              <div class="input-shell has-toggle">
+                <input type="password" id="regPassword" placeholder="At least 8 characters" autocomplete="new-password">
+                <button type="button" class="eye-btn" data-target="regPassword" aria-label="Show password">
+                  <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <div class="field-msg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                Password must be at least 8 characters
+              </div>
+            </div>
+
+            <div class="field" id="regConfirmField">
+              <label for="regConfirm">Confirm password</label>
+              <div class="input-shell has-toggle">
+                <input type="password" id="regConfirm" placeholder="Re-enter your password" autocomplete="new-password">
+                <button type="button" class="eye-btn" data-target="regConfirm" aria-label="Show password">
+                  <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <div class="field-msg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                Passwords don't match
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-white" id="registerSubmitBtn" style="margin-top:4px;">
+              <span class="btn-spinner"></span>
+              <span class="btn-label">Create Account</span>
+            </button>
+          </form>
+
+          <div class="card-footer">
+            Already have an account?
+            <button type="button" id="goLogin">Login</button>
+          </div>
+
+          <div class="success-flash" id="registerSuccess">
+            <div class="success-ring">
+              <svg viewBox="0 0 24 24"><path class="tick" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <p>Account created — welcome to Nerose</p>
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEMO DASHBOARD -->
+    <div class="screen" id="screen-demo">
+      <div class="dash-stage fade-slide-enter">
+        <div class="dash-topbar">
+          <div class="who">
+            <div class="who-avatar">AM</div>
+            <div>
+              <div class="who-name">Alex Morgan</div>
+              <div class="who-tag">Demo account · read-only</div>
+            </div>
+          </div>
+          <button class="exit-btn" id="exitDemo">Exit demo</button>
+        </div>
+
+        <div class="dash-grid-wrap">
+          <div class="panel">
+            <h4>Total Balance</h4>
+            <div class="balance-big mono" id="demoBalance">$0.00</div>
+            <div class="stat-strip">
+              <div class="stat-box">
+                <div class="k">Monthly Income</div>
+                <div class="v mono pos">$8,500</div>
+              </div>
+              <div class="stat-box">
+                <div class="k">Monthly Expenses</div>
+                <div class="v mono neg">$2,300</div>
+              </div>
+            </div>
+            <h4>Cash Flow</h4>
+            <div class="bars2" id="demoBars">
+              <div class="bar" data-h="34"></div>
+              <div class="bar" data-h="48"></div>
+              <div class="bar" data-h="40"></div>
+              <div class="bar" data-h="62"></div>
+              <div class="bar" data-h="55"></div>
+              <div class="bar" data-h="74"></div>
+              <div class="bar active" data-h="100"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h4>Savings Rate</h4>
+            <div class="rate-ring2">
+              <svg viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="9"/>
+                <circle class="ring-progress" id="ringProgress" cx="60" cy="60" r="54" fill="none" stroke="#e8c977" stroke-width="9" stroke-linecap="round"/>
+              </svg>
+              <div class="rate-center2"><span class="n mono">72%</span><span class="l">of goal</span></div>
+            </div>
+
+            <h4>Goals</h4>
+            <div class="goal-list">
+              <div class="goal-item">
+                <div class="top"><span>Emergency Fund</span><span class="mono">86%</span></div>
+                <div class="goal-bar2"><div class="goal-fill2" data-w="86"></div></div>
+              </div>
+              <div class="goal-item">
+                <div class="top"><span>Travel</span><span class="mono">54%</span></div>
+                <div class="goal-bar2"><div class="goal-fill2" data-w="54"></div></div>
+              </div>
+              <div class="goal-item">
+                <div class="top"><span>New Laptop</span><span class="mono">31%</span></div>
+                <div class="goal-bar2"><div class="goal-fill2" data-w="31"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ============ Marketing site behavior ============ */
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+
+  const navToggle = document.getElementById('navToggle');
+  const navMenu = document.getElementById('navMenu');
+  navToggle.addEventListener('click', () => navMenu.classList.toggle('open'));
+  navMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navMenu.classList.remove('open')));
+
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  const heroVisual = document.querySelector('.hero-visual');
+  let heroAnimated = false;
+  function animateHeroNumber(el, target, prefix = '$', decimals = 2, duration = 1200) {
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const val = target * eased;
+      el.textContent = prefix + val.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  const heroIo = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !heroAnimated) {
+        heroAnimated = true;
+        animateHeroNumber(document.getElementById('balanceNum'), 24858, '$', 2);
+      }
+    });
+  }, { threshold: 0.3 });
+  if (heroVisual) heroIo.observe(heroVisual);
+
+  /* ============ Authentication overlay ============ */
+  const authOverlay = document.getElementById('authOverlay');
+  const screens = {
+    login: document.getElementById('screen-login'),
+    register: document.getElementById('screen-register'),
+    demo: document.getElementById('screen-demo'),
+  };
+
+  function showScreen(name){
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[name].classList.add('active');
+    const target = screens[name].firstElementChild;
+    target.classList.remove('fade-slide-enter');
+    void target.offsetWidth;
+    target.classList.add('fade-slide-enter');
+  }
+
+  function openAuth(name){
+    authOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    showScreen(name);
+    if (name === 'demo') animateDemoDashboard();
+  }
+  function closeAuth(){
+    authOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('[data-auth]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAuth(el.dataset.auth);
+    });
+  });
+  document.getElementById('authClose').addEventListener('click', closeAuth);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && authOverlay.classList.contains('open')) closeAuth();
+  });
+
+  document.getElementById('goRegister').addEventListener('click', () => showScreen('register'));
+  document.getElementById('goLogin').addEventListener('click', () => showScreen('login'));
+  document.getElementById('exitDemo').addEventListener('click', closeAuth);
+
+  // Password visibility toggles
+  document.querySelectorAll('.eye-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      const isPw = input.type === 'password';
+      input.type = isPw ? 'text' : 'password';
+      btn.querySelector('.icon-eye').innerHTML = isPw
+        ? '<path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a21.6 21.6 0 015.06-6.44M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 8 11 8a21.6 21.6 0 01-3.22 4.44M14.12 14.12a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/>'
+        : '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
+    });
+  });
+
+  function clearErrors(form){
+    form.querySelectorAll('.field.error').forEach(f => f.classList.remove('error'));
+  }
+
+  // Login form
+  const loginForm = document.getElementById('loginForm');
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    clearErrors(loginForm);
+    const email = document.getElementById('loginEmail');
+    const pw = document.getElementById('loginPassword');
+    let ok = true;
+
+    if (!email.value.includes('@') || !email.value.includes('.')) {
+      document.getElementById('loginEmailField').classList.add('error');
+      ok = false;
+    }
+    if (pw.value.length < 6) {
+      document.getElementById('loginPasswordField').classList.add('error');
+      ok = false;
+    }
+    if (!ok) return;
+
+    const btn = document.getElementById('loginSubmitBtn');
+    btn.classList.add('loading');
+    btn.setAttribute('disabled','');
+    setTimeout(() => {
+      btn.classList.remove('loading');
+      btn.removeAttribute('disabled');
+      const flash = document.getElementById('loginSuccess');
+      flash.querySelector('p').textContent = 'Welcome back — signing you in…';
+      flash.classList.add('show');
+      setTimeout(() => {
+        flash.classList.remove('show');
+        openAuth('demo');
+      }, 1100);
+    }, 1200);
+  });
+
+  // Register form
+  const registerForm = document.getElementById('registerForm');
+  registerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    clearErrors(registerForm);
+    const name = document.getElementById('regName');
+    const email = document.getElementById('regEmail');
+    const pw = document.getElementById('regPassword');
+    const confirm = document.getElementById('regConfirm');
+    let ok = true;
+
+    if (name.value.trim().length < 2) {
+      document.getElementById('regNameField').classList.add('error');
+      ok = false;
+    }
+    if (!email.value.includes('@') || !email.value.includes('.')) {
+      document.getElementById('regEmailField').classList.add('error');
+      ok = false;
+    }
+    if (pw.value.length < 8) {
+      document.getElementById('regPasswordField').classList.add('error');
+      ok = false;
+    }
+    if (confirm.value !== pw.value || confirm.value === '') {
+      document.getElementById('regConfirmField').classList.add('error');
+      ok = false;
+    }
+    if (!ok) return;
+
+    const btn = document.getElementById('registerSubmitBtn');
+    btn.classList.add('loading');
+    btn.setAttribute('disabled','');
+    setTimeout(() => {
+      btn.classList.remove('loading');
+      btn.removeAttribute('disabled');
+      document.getElementById('registerSuccess').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('registerSuccess').classList.remove('show');
+        openAuth('demo');
+      }, 1100);
+    }, 1200);
+  });
+
+  // Demo account button (inside login card)
+  const demoBtn = document.getElementById('demoBtn');
+  demoBtn.addEventListener('click', () => {
+    demoBtn.classList.add('loading');
+    demoBtn.setAttribute('disabled','');
+    setTimeout(() => {
+      demoBtn.classList.remove('loading');
+      demoBtn.removeAttribute('disabled');
+      const flash = document.getElementById('loginSuccess');
+      flash.querySelector('p').innerHTML = 'Signing in as <span class="name">Alex Morgan</span>…';
+      flash.classList.add('show');
+      setTimeout(() => {
+        flash.classList.remove('show');
+        openAuth('demo');
+      }, 1100);
+    }, 1100);
+  });
+
+  function animateDemoNumber(el, target, duration = 1100){
+    const start = performance.now();
+    function tick(now){
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = '$' + (target * eased).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function animateDemoDashboard(){
+    animateDemoNumber(document.getElementById('demoBalance'), 24850);
+    document.querySelectorAll('#demoBars .bar').forEach(b => {
+      b.style.height = '0';
+      requestAnimationFrame(() => { b.style.height = b.dataset.h + '%'; });
+    });
+    const offset = 339.3 * (1 - 0.72);
+    const ring = document.getElementById('ringProgress');
+    ring.style.strokeDashoffset = '339.3';
+    requestAnimationFrame(() => { ring.style.strokeDashoffset = offset; });
+    document.querySelectorAll('.goal-fill2').forEach(f => {
+      f.style.width = '0';
+      requestAnimationFrame(() => { f.style.width = f.dataset.w + '%'; });
+    });
+  }
+</script>
+
+</body>
+</html>
